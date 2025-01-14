@@ -1,5 +1,9 @@
 build
-node_modules
+node_modules/
 abis
 typechain-types
 flatten.sol
+.env
+deployments/
+coverage.json
+yarn-error.log
