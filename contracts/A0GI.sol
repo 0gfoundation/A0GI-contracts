@@ -9,7 +9,7 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    /// @custom:storage-location erc7201:0g.storage.NodeSaleNFT
+    /// @custom:storage-location erc7201:0g.storage.A0GI
     struct A0GIStorage {
         mapping(address => Supply) minterSupply;
     }
@@ -63,7 +63,7 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
     function _burnFrom(address account, uint amount) internal {
         A0GIStorage storage $ = _getA0GIStorage();
         Supply storage s = $.minterSupply[_msgSender()];
-        require(s.total >= amount, "UpgradeableERC20: burn amount exceeds minter total supply");
+        require(s.total >= amount, "A0GI: burn amount exceeds minter total supply");
         unchecked {
             s.total -= amount;
         }
