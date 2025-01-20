@@ -1,8 +1,7 @@
-import * as helpers from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { Signer } from "ethers";
 import hre, { deployments } from "hardhat";
-import { CONTRACTS, deployDirectly, getTypedContract, MINTER_ROLE, poolName, tokenOf, UNIT } from "../src/utils/utils";
+import { CONTRACTS, getTypedContract, MINTER_ROLE } from "../src/utils/utils";
 import { A0GI } from "../typechain-types";
 
 describe("pool", () => {
