@@ -3,16 +3,18 @@ pragma solidity ^0.8.0;
 
 interface IA0GI {
     struct Supply {
-        uint total; // Total minted tokens by the minter
         uint cap; // Maximum tokens the minter can mint
+        uint initialSupply; // Initial supply
+        uint supply; // Total minted tokens by the minter
     }
 
     /**
      * @dev Emitted when a minter's cap is updated.
      * @param minter The address of the minter
      * @param cap The new cap for the minter
+     * @param initialSupply The new initial supply for the minter
      */
-    event MinterCapUpdated(address indexed minter, uint cap);
+    event MinterCapUpdated(address indexed minter, uint cap, uint initialSupply);
 
     /**
      * @notice Mint new tokens.
@@ -32,8 +34,9 @@ interface IA0GI {
      * @notice Set the maximum minting cap for a minter.
      * @param minter The address of the minter
      * @param cap The new cap for the minter
+     * @param initialSupply The new initial supply for the minter
      */
-    function setMinterCap(address minter, uint cap) external;
+    function setMinterCap(address minter, uint cap, uint initialSupply) external;
 
     /**
      * @notice Burn tokens from the sender's account.

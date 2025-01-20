@@ -10,13 +10,19 @@ async function printSupply(hre: HardhatRuntimeEnvironment, account: string) {
     );
     const res = await base.minterSupply(account);
     console.log(`mint cap of ${account}: ${hre.ethers.formatEther(res[0])}`);
-    console.log(`mint supply of ${account}: ${hre.ethers.formatEther(res[1])}`);
+    console.log(`mint inital supply of ${account}: ${hre.ethers.formatEther(res[1])}`);
+    console.log(`mint supply of ${account}: ${hre.ethers.formatEther(res[2])}`);
 }
 
 async function printBalance(hre: HardhatRuntimeEnvironment, account: string) {
     const wa0gi = await getTypedContract(hre, CONTRACTS.WA0GI);
     const res = await wa0gi.balanceOf(account);
     console.log(`balance of ${account}: ${hre.ethers.formatEther(res)}`);
+    console.log(
+        `balance of wa0gi contract: ${hre.ethers.formatEther(
+            await hre.ethers.provider.getBalance(await wa0gi.getAddress())
+        )}`
+    );
 }
 
 task("wa0gibase:mintersupply", "get minter supply")
@@ -94,6 +100,17 @@ task("wa0gi:approve", "mint")
     .setAction(async (taskArgs: { account: string; amount: string }, hre) => {
         const wa0gi = await getTypedContract(hre, CONTRACTS.WA0GI);
         await (await wa0gi.approve(taskArgs.account, hre.ethers.parseEther(taskArgs.amount))).wait();
+    });
+
+task("wa0gi:deposit", "mint")
+    .addParam("amount", "amount", undefined, types.string, false)
+    .setAction(async (taskArgs: { account: string; amount: string }, hre) => {
+        const { getNamedAccounts } = hre;
+        const { deployer } = await getNamedAccounts();
+        const wa0gi = await getTypedContract(hre, CONTRACTS.WA0GI);
+        await (await wa0gi.deposit({ value: hre.ethers.parseEther(taskArgs.amount) })).wait();
+        await printSupply(hre, deployer);
+        await printBalance(hre, deployer);
     });
 
 task("wa0gi:raw", "get raw transaction")

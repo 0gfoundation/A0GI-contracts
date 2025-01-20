@@ -44,8 +44,8 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
         require(hasRole(MINTER_ROLE, _msgSender()), "A0GI: must have minter role to mint");
         A0GIStorage storage $ = _getA0GIStorage();
         Supply storage s = $.minterSupply[msg.sender];
-        s.total += amount;
-        require(s.total <= s.cap, "A0GI: minter cap exceeded");
+        s.supply += amount;
+        require(s.supply <= s.cap, "A0GI: minter cap exceeded");
         _mint(to, amount);
     }
 
@@ -54,18 +54,31 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
         return $.minterSupply[minter];
     }
 
-    function setMinterCap(address minter, uint cap) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMinterCap(address minter, uint cap, uint initialSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
         A0GIStorage storage $ = _getA0GIStorage();
-        $.minterSupply[minter].cap = cap;
-        emit MinterCapUpdated(minter, cap);
+
+        Supply storage s = $.minterSupply[_msgSender()];
+        s.cap = cap;
+        if (initialSupply > s.initialSupply) {
+            s.supply += initialSupply - s.initialSupply;
+        } else {
+            uint difference = s.initialSupply - initialSupply;
+            if (difference > s.supply) {
+                s.supply = 0;
+            } else {
+                s.supply -= difference;
+            }
+        }
+        s.initialSupply = initialSupply;
+        emit MinterCapUpdated(minter, cap, initialSupply);
     }
 
     function _burnFrom(address account, uint amount) internal {
         A0GIStorage storage $ = _getA0GIStorage();
         Supply storage s = $.minterSupply[_msgSender()];
-        require(s.total >= amount, "A0GI: burn amount exceeds minter total supply");
+        require(s.supply >= amount, "A0GI: burn amount exceeds minter total supply");
         unchecked {
-            s.total -= amount;
+            s.supply -= amount;
         }
         if (account != _msgSender()) {
             _spendAllowance(account, _msgSender(), amount);

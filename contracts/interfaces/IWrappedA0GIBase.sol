@@ -2,8 +2,9 @@
 pragma solidity >=0.8.0;
 
 struct Supply {
-    uint cap;
-    uint total;
+    uint256 cap;
+    uint256 initialSupply;
+    uint256 supply;
 }
 
 /**
@@ -23,12 +24,13 @@ interface IWrappedA0GIBase {
     function getWA0GI() external view returns (address);
 
     /**
-     * @dev set the cap for a minter.
+     * @dev set the cap and initial supply for a minter.
      * It is designed to be called by governance module only so it's not implemented at EVM precompile side.
      * @param minter minter address
      * @param cap mint cap
+     * @param initialSupply initial mint supply
      */
-    // function setMinterCap(address minter, uint cap) external;
+    // function setMinterCap(address minter, uint256 cap, uint256 initialSupply) external;
 
     /**
      * @dev get the mint supply of given address
@@ -43,7 +45,7 @@ interface IWrappedA0GIBase {
      * @param minter minter address
      * @param amount amount to mint
      */
-    function mint(address minter, uint amount) external;
+    function mint(address minter, uint256 amount) external;
 
     /**
      * @dev burn given amount of a0gi on behalf of minter, reduce corresponding amount from sender's mint supply.
@@ -51,5 +53,5 @@ interface IWrappedA0GIBase {
      * @param minter minter address
      * @param amount amount to burn
      */
-    function burn(address minter, uint amount) external;
+    function burn(address minter, uint256 amount) external;
 }
