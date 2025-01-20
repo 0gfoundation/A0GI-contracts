@@ -40,8 +40,7 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
      *
      * - the caller must have the `MINTER_ROLE`.
      */
-    function mint(address to, uint amount) external {
-        require(hasRole(MINTER_ROLE, _msgSender()), "A0GI: must have minter role to mint");
+    function mint(address to, uint amount) external onlyRole(MINTER_ROLE) {
         A0GIStorage storage $ = _getA0GIStorage();
         Supply storage s = $.minterSupply[msg.sender];
         s.supply += amount;
@@ -57,7 +56,7 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
     function setMinterCap(address minter, uint cap, uint initialSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
         A0GIStorage storage $ = _getA0GIStorage();
 
-        Supply storage s = $.minterSupply[_msgSender()];
+        Supply storage s = $.minterSupply[minter];
         s.cap = cap;
         if (initialSupply > s.initialSupply) {
             s.supply += initialSupply - s.initialSupply;
@@ -91,21 +90,21 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
      * @param account account to burn
      * @param amount amount to burn
      */
-    function burnFrom(address account, uint amount) external {
+    function burnFrom(address account, uint amount) external onlyRole(MINTER_ROLE) {
         _burnFrom(account, amount);
     }
 
     /**
      * @notice alternative burn function for minter contract integration
      */
-    function burn(uint amount) public virtual {
+    function burn(uint amount) public onlyRole(MINTER_ROLE) {
         _burnFrom(_msgSender(), amount);
     }
 
     /**
      * @notice alternative burn function for minter contract integration
      */
-    function burn(address account, uint amount) external {
+    function burn(address account, uint amount) external onlyRole(MINTER_ROLE) {
         _burnFrom(account, amount);
     }
 

@@ -4,8 +4,9 @@
   "license": "MIT",
   "scripts": {
     "build": "hardhat compile",
-    "fmt:ts": "prettier 'src/**/*.ts' '*.ts' -w",
-    "fmt:sol": "prettier 'contracts/**/*.sol' -w"
+    "fmt:ts": "prettier 'src/**/*.ts' 'test/**/*.ts' '*.ts' -w",
+    "fmt:sol": "prettier 'contracts/**/*.sol' -w",
+    "test": "hardhat test"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
