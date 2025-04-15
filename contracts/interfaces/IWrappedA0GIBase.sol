@@ -54,4 +54,13 @@ interface IWrappedA0GIBase {
      * @param amount amount to burn
      */
     function burn(address minter, uint256 amount) external;
+
+    /**
+     * @dev Modify the mint and burn cap of given account.
+     * Can only be called by a wa0gi agency, which controlled by a multisig wallet.
+     * @param minter minter address
+     * @param cap new mint cap
+     * @param initialSupply new initial supply / burn cap
+     */
+    function setMinterCap(address minter, uint256 cap, uint256 initialSupply) external returns (address);
 }

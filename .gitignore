@@ -7,3 +7,4 @@ flatten.sol
 deployments/
 coverage.json
 yarn-error.log
+run.sh

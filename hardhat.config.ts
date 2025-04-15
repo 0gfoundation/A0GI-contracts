@@ -50,6 +50,10 @@ const config: HardhatUserConfig = {
             ...userConfig,
             url: "http://127.0.0.1:8545",
         },
+        zg: {
+            ...userConfig,
+            url: "https://evmrpc-testnet.0g.ai",
+        },
     },
     namedAccounts: {
         deployer: 0,
