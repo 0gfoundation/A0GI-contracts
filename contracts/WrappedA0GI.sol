@@ -8,8 +8,8 @@ import "./interfaces/IWrappedA0GI.sol";
  * @notice WrappedA0GI is a variant of WETH9, with mint and burn functionality implemented via precompile.
  */
 contract WrappedA0GI is IWrappedA0GI {
-    string public name = "Wrapped A0GI";
-    string public symbol = "WA0GI";
+    string public name = "Wrapped 0G";
+    string public symbol = "W0G";
     uint8 public decimals = 18;
     address public WRAPPED_A0GI_BASE = 0x0000000000000000000000000000000000001002;
 
