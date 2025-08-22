@@ -85,6 +85,7 @@ export const CONTRACTS = {
     WA0GI: new ContractMeta(Factories.WrappedA0GI__factory),
     A0GI: new ContractMeta(Factories.A0GI__factory),
     WrappedA0GIBaseAgency: new ContractMeta(Factories.WrappedA0GIBaseAgency__factory),
+    WA0GICCT: new ContractMeta(Factories.WA0GICCT__factory),
 } as const;
 
 type GetContractTypeFromContractMeta<F> = F extends ContractMeta<infer C> ? C : never;

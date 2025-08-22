@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract WrappedA0GIBaseAgency is OwnableUpgradeable {
-     address public constant WRAPPED_A0GI_BASE = 0x0000000000000000000000000000000000001002;
+    address public constant WRAPPED_A0GI_BASE = 0x0000000000000000000000000000000000001002;
 
     /*
     /// @custom:storage-location erc7201:0g.storage.WrappedA0GIBaseAgency

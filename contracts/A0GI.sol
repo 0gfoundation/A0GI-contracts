@@ -24,6 +24,10 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
     }
 
     function initialize(string memory _name, string memory _symbol) external initializer {
+        _A0GI_init(_name, _symbol);
+    }
+
+    function _A0GI_init(string memory _name, string memory _symbol) internal {
         __ERC20Pausable_init();
         __ERC20_init(_name, _symbol);
 
@@ -46,7 +50,10 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
         s.supply += amount;
         require(s.supply <= s.cap, "A0GI: minter cap exceeded");
         _mint(to, amount);
+        _afterMint(to, amount);
     }
+
+    function _afterMint(address to, uint amount) internal virtual {}
 
     function minterSupply(address minter) external view returns (Supply memory) {
         A0GIStorage storage $ = _getA0GIStorage();
@@ -82,8 +89,11 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
         if (account != _msgSender()) {
             _spendAllowance(account, _msgSender(), amount);
         }
+        _beforeBurn(account, amount);
         _burn(account, amount);
     }
+
+    function _beforeBurn(address to, uint amount) internal virtual {}
 
     /**
      * @notice burn from another account and refund minter's supply
