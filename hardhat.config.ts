@@ -13,6 +13,7 @@ const { NODE_URL, DEPLOYER_KEY, ETHERSCAN_API_KEY } = process.env;
 import "./src/tasks/access";
 import "./src/tasks/upgrade";
 import "./src/tasks/wa0gi";
+import "./src/tasks/wa0gicct";
 
 const userConfig: HttpNetworkUserConfig = {
     accounts: DEPLOYER_KEY ? [DEPLOYER_KEY] : [],
