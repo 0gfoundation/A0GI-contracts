@@ -41,7 +41,7 @@ contract WA0GICCT is IWA0GICCT, A0GI {
 
     /*=== CCIP standard ===*/
 
-    function getCCIPAdmin() external view override returns (address) {
+    function getCCIPAdmin() external view override(A0GI, IWA0GICCT) returns (address) {
         A0GICCTStorage storage $ = _getA0GICCTStorage();
         return $.CCIPAdmin;
     }

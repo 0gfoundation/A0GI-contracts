@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const { NODE_URL, DEPLOYER_KEY, ETHERSCAN_API_KEY } = process.env;
 
+import "./src/tasks/a0gi";
 import "./src/tasks/access";
 import "./src/tasks/upgrade";
 import "./src/tasks/wa0gi";
@@ -54,6 +55,11 @@ const config: HardhatUserConfig = {
         zg: {
             ...userConfig,
             url: "https://evmrpc-testnet.0g.ai",
+            // url: "http://8.221.138.189:8545",
+        },
+        sepolia: {
+            ...userConfig,
+            url: "https://eth-sepolia.public.blastapi.io",
         },
     },
     namedAccounts: {

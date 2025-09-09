@@ -12,6 +12,7 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
     /// @custom:storage-location erc7201:0g.storage.A0GI
     struct A0GIStorage {
         mapping(address => Supply) minterSupply;
+        address CCIPAdmin;
     }
 
     // keccak256(abi.encode(uint(keccak256("0g.storage.A0GI")) - 1)) & ~bytes32(uint(0xff))
@@ -33,6 +34,14 @@ contract A0GI is IA0GI, ERC20PausableUpgradeable, AccessControlEnumerableUpgrade
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
+
+        A0GIStorage storage $ = _getA0GIStorage();
+        $.CCIPAdmin = msg.sender;
+    }
+
+    function getCCIPAdmin() external view virtual returns (address) {
+        A0GIStorage storage $ = _getA0GIStorage();
+        return $.CCIPAdmin;
     }
 
     /**

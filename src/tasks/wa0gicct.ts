@@ -44,20 +44,24 @@ task("wa0gicct:mint", "mint")
     .addParam("account", "account", undefined, types.string, false)
     .addParam("amount", "amount", undefined, types.string, false)
     .setAction(async (taskArgs: { account: string; amount: string }, hre) => {
+        const { getNamedAccounts } = hre;
+        const { deployer } = await getNamedAccounts();
         const wa0gicct = await getTypedContract(hre, CONTRACTS.WA0GICCT);
         await (await wa0gicct.mint(taskArgs.account, hre.ethers.parseEther(taskArgs.amount))).wait();
-        await printSupply(hre, wa0gicct, taskArgs.account);
-        await printBalance(hre, wa0gicct, taskArgs.account);
+        await printSupply(hre, wa0gicct, deployer);
+        await printBalance(hre, wa0gicct, deployer);
     });
 
 task("wa0gicct:burn", "burn")
     .addParam("account", "account", undefined, types.string, false)
     .addParam("amount", "amount", undefined, types.string, false)
     .setAction(async (taskArgs: { account: string; amount: string }, hre) => {
+        const { getNamedAccounts } = hre;
+        const { deployer } = await getNamedAccounts();
         const wa0gicct = await getTypedContract(hre, CONTRACTS.WA0GICCT);
         await (await wa0gicct.burnFrom(taskArgs.account, hre.ethers.parseEther(taskArgs.amount))).wait();
-        await printSupply(hre, wa0gicct, taskArgs.account);
-        await printBalance(hre, wa0gicct, taskArgs.account);
+        await printSupply(hre, wa0gicct, deployer);
+        await printBalance(hre, wa0gicct, deployer);
     });
 
 task("wa0gicct:deposit", "deposit")
