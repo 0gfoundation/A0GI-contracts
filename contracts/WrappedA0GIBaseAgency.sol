@@ -35,7 +35,7 @@ contract WrappedA0GIBaseAgency is OwnableUpgradeable {
     }
 
     function initialize() external initializer {
-        __Ownable_init(0x2D7F2d2286994477Ba878f321b17A7e40E52cDa4);
+        __Ownable_init(0x20f33CE90A13a4b5E7697E3544c3083B8F8A51D4);
     }
 
     /// @dev Forwards to the 0x1002 stateful precompile via a low-level `.call()` for the
