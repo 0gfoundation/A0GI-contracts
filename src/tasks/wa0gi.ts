@@ -220,8 +220,7 @@ task("wa0gi:setmintercap", "set minter cap")
             WA0GI_AGENCY_PROXY,
             signer
         );
-        const receipt = await (
+        await (
             await agency.setMinterCap(taskArgs.account, parseEther(taskArgs.cap), parseEther(taskArgs.initialsupply))
         ).wait();
-        console.log(receipt);
     });

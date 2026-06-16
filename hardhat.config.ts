@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
         artifacts: "build/artifacts",
         cache: "build/cache",
         sources: "contracts",
-        deploy: "src/deploy",
+        deploy: process.env.DEPLOY_PATH || "src/deploy",
     },
     solidity: {
         compilers: [
@@ -48,7 +48,7 @@ const config: HardhatUserConfig = {
         },
         local: {
             ...userConfig,
-            url: "http://127.0.0.1:8545",
+            url: process.env.RPC_URL || "http://127.0.0.1:8545",
         },
         zg: {
             ...userConfig,
