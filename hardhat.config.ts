@@ -55,6 +55,14 @@ const config: HardhatUserConfig = {
             url: "https://evmrpc-testnet.0g.ai",
             // url: "http://8.221.138.189:8545",
         },
+        // Explicit mainnet entry: the agency ownership tasks are irreversible, and reaching
+        // mainnet by overriding `local`'s RPC_URL makes it too easy to fire one at the wrong
+        // chain. `chainId` is pinned so hardhat rejects a mismatched endpoint.
+        zgmainnet: {
+            ...userConfig,
+            url: process.env.ZG_MAINNET_RPC_URL || "https://evmrpc.0g.ai",
+            chainId: 16661,
+        },
         sepolia: {
             ...userConfig,
             url: "https://eth-sepolia.public.blastapi.io",

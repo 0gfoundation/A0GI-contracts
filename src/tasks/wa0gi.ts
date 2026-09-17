@@ -8,6 +8,7 @@ import {
     Factories,
     getRawDeployment,
     getTypedContract,
+    transact,
     UPGRADEABLE_BEACON,
 } from "../utils/utils";
 
@@ -208,6 +209,85 @@ task("wa0gi:agencycheck", "check wa0gi agency status").setAction(async (_taskArg
     const agency: WrappedA0GIBaseAgency = await hre.ethers.getContractAt("WrappedA0GIBaseAgency", WA0GI_AGENCY_PROXY);
     console.log(`agency owner: ${await agency.owner()}`);
 });
+
+/**
+ * Hands both W0G agency ownership slots to a multisig:
+ *
+ *   - the beacon owner, which is the upgrade key for the agency implementation
+ *   - the proxy owner, which is the only account that can call setMinterCap
+ *
+ * The addresses are fixed rather than read from deployment records: the agency was deployed from
+ * pre-signed chainId-less raw transactions, so it has no hardhat-deploy artifacts, lands at the
+ * same address on every 0G chain, and the proxy address is compiled into the execution layer as
+ * the only caller the 0x1002 precompile accepts for setMinterCap. The proxy must therefore never
+ * be redeployed — only its owner moves.
+ *
+ * Ownable transfer is a single irreversible step with no acceptance handshake, hence the
+ * pre-flight checks and the default `--execute false` dry run, which prints the calldata for a
+ * multisig to execute instead of sending anything.
+ */
+task("wa0gi:agencytransfer", "transfer W0G agency ownership (beacon + proxy) to a multisig")
+    .addParam("to", "new owner, normally a multisig", undefined, types.string, false)
+    .addParam("execute", "settle transactions on chain", false, types.boolean, true)
+    .addParam("allowEoa", "permit a new owner that has no contract code", false, types.boolean, true)
+    .setAction(async (taskArgs: { to: string; execute: boolean; allowEoa: boolean }, hre) => {
+        const newOwner = ethers.getAddress(taskArgs.to);
+        if (newOwner === ethers.ZeroAddress) {
+            throw new Error("new owner is the zero address");
+        }
+        if (!taskArgs.allowEoa && (await hre.ethers.provider.getCode(newOwner)) === "0x") {
+            throw new Error(
+                `${newOwner} has no contract code on this chain; a multisig would. Pass --allow-eoa true to override.`
+            );
+        }
+
+        const signer = await hre.ethers.getSigner((await hre.getNamedAccounts()).deployer);
+        const beacon: UpgradeableBeacon = await hre.ethers.getContractAt(
+            UPGRADEABLE_BEACON,
+            WA0GI_AGENCY_BEACON,
+            signer
+        );
+        const agency: WrappedA0GIBaseAgency = await hre.ethers.getContractAt(
+            "WrappedA0GIBaseAgency",
+            WA0GI_AGENCY_PROXY,
+            signer
+        );
+
+        const implementation = await beacon.implementation();
+        console.log(`chain id: ${(await hre.ethers.provider.getNetwork()).chainId}`);
+        console.log(`new owner: ${newOwner}`);
+        console.log(`beacon implementation: ${implementation}`);
+        if (implementation.toLowerCase() !== WA0GI_AGENCY_IMPLEMENTATION) {
+            console.log(`  warning: differs from the recorded implementation ${WA0GI_AGENCY_IMPLEMENTATION}`);
+        }
+
+        const beaconOwner = await beacon.owner();
+        console.log(`beacon owner: ${beaconOwner}`);
+        if (beaconOwner === newOwner) {
+            console.log("  already transferred, skipping");
+        } else {
+            if (taskArgs.execute && beaconOwner !== signer.address) {
+                throw new Error(`beacon is owned by ${beaconOwner}, not by the signer ${signer.address}`);
+            }
+            await transact(beacon, "transferOwnership", [newOwner], taskArgs.execute);
+        }
+
+        const agencyOwner = await agency.owner();
+        console.log(`agency proxy owner: ${agencyOwner}`);
+        if (agencyOwner === newOwner) {
+            console.log("  already transferred, skipping");
+        } else {
+            if (taskArgs.execute && agencyOwner !== signer.address) {
+                throw new Error(`agency proxy is owned by ${agencyOwner}, not by the signer ${signer.address}`);
+            }
+            await transact(agency, "transferOwnership", [newOwner], taskArgs.execute);
+        }
+
+        if (taskArgs.execute) {
+            console.log(`beacon owner is now: ${await beacon.owner()}`);
+            console.log(`agency proxy owner is now: ${await agency.owner()}`);
+        }
+    });
 
 task("wa0gi:setmintercap", "set minter cap")
     .addParam("account", "account", undefined, types.string, false)
