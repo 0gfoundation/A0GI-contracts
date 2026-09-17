@@ -1,4 +1,4 @@
-import { ethers, parseEther } from "ethers";
+import { BaseContract, ethers, parseEther } from "ethers";
 import { task, types } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { UpgradeableBeacon, WrappedA0GI, WrappedA0GIBaseAgency } from "../../typechain-types";
@@ -253,7 +253,8 @@ task("wa0gi:agencytransfer", "transfer W0G agency ownership (beacon + proxy) to 
             );
         }
 
-        // Read-only handles: no signer, so a dry run works without the owner's key on the machine.
+        // Provider-bound handles: the dry run resolves no signer, so it works without the owner's
+        // key on the machine at all.
         const beacon: UpgradeableBeacon = await hre.ethers.getContractAt(UPGRADEABLE_BEACON, WA0GI_AGENCY_BEACON);
         const agency: WrappedA0GIBaseAgency = await hre.ethers.getContractAt(
             "WrappedA0GIBaseAgency",
@@ -276,27 +277,29 @@ task("wa0gi:agencytransfer", "transfer W0G agency ownership (beacon + proxy) to 
         // The beacon is transferred first on purpose. It is the stronger key - its owner can swap
         // the implementation and reach setMinterCap regardless of the proxy owner - so if the run
         // stops in between, the multisig already holds effective control rather than the reverse.
-        for (const slot of [
-            { label: "beacon", address: WA0GI_AGENCY_BEACON, owner: await beacon.owner() },
-            { label: "agency proxy", address: WA0GI_AGENCY_PROXY, owner: await agency.owner() },
-        ]) {
+        // Each slot carries its own contract, so nothing about which transaction goes where
+        // depends on the label that is only there to be printed.
+        const slots: { label: string; contract: BaseContract; owner: string }[] = [
+            { label: "beacon", contract: beacon, owner: await beacon.owner() },
+            { label: "agency proxy", contract: agency, owner: await agency.owner() },
+        ];
+        for (const slot of slots) {
             console.log(`${slot.label} owner: ${slot.owner}`);
-            if (slot.owner.toLowerCase() !== WA0GI_AGENCY_OWNER) {
-                console.log(`  warning: differs from the recorded owner ${WA0GI_AGENCY_OWNER}`);
-            }
             if (slot.owner === newOwner) {
                 console.log("  already transferred, skipping");
                 continue;
+            }
+            if (slot.owner.toLowerCase() !== WA0GI_AGENCY_OWNER) {
+                console.log(`  warning: differs from the recorded owner ${WA0GI_AGENCY_OWNER}`);
             }
             if (signer) {
                 if (slot.owner !== signer.address) {
                     throw new Error(`${slot.label} is owned by ${slot.owner}, not by the signer ${signer.address}`);
                 }
-                const contract = slot.label === "beacon" ? beacon.connect(signer) : agency.connect(signer);
-                await transact(contract, "transferOwnership", [newOwner], true);
+                await transact(slot.contract.connect(signer), "transferOwnership", [newOwner], true);
             } else {
                 console.log(`  calldata below must be executed from ${slot.owner}`);
-                await transact(slot.label === "beacon" ? beacon : agency, "transferOwnership", [newOwner], false);
+                await transact(slot.contract, "transferOwnership", [newOwner], false);
             }
         }
 
