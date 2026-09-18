@@ -18,7 +18,7 @@ Branch semantics: `main` is the production source — `WrappedA0GIBaseAgency.ini
 ## Layout
 
 - `src/deploy/` — hardhat-deploy scripts: `deploy_wa0gi.ts` (direct deploy, tag `test`)
-- `src/tasks/` — hardhat tasks: `wa0gi.ts` (mint/burn/deposit, raw-tx generation, agency admin), `upgrade.ts` (beacon `upgradeTo` + OZ storage-layout validation), `access.ts` (transfer beacon ownership to timelock)
+- `src/tasks/` — hardhat tasks: `wa0gi.ts` (mint/burn/deposit, raw-tx generation, agency admin, `wa0gi:agencytransfer` for handing the agency beacon + proxy ownership to a multisig), `upgrade.ts` (beacon `upgradeTo` + OZ storage-layout validation), `access.ts` (transfer beacon ownership to timelock — resolves beacons through hardhat-deploy artifacts, so it cannot see the raw-tx-deployed agency; use `wa0gi:agencytransfer` for that one)
 - `src/utils/utils.ts` — `CONTRACTS` registry (typechain factories), `deployDirectly` / `deployInBeaconProxy`, `getRawDeployment` (signs pre-EIP-155 raw deploy txs)
 - `deployments/` — hardhat-deploy records (gitignored, generated per network)
 - `run.sh` — local smoke flow: starts a node via `../0g-precompiles/run.sh`, then exercises agency initialize / setMinterCap / mint / burn against the `0x1002` precompile
@@ -34,7 +34,7 @@ yarn fmt:ts        # prettier src/test
 ```
 
 Solidity 0.8.20, evmVersion `istanbul`, optimizer 200 runs.
-Networks (`hardhat.config.ts`): `local` (`RPC_URL`, default `127.0.0.1:8545`), `zg` (`evmrpc-testnet.0g.ai`), `sepolia`. Deployer key via `DEPLOYER_KEY` env (dotenv).
+Networks (`hardhat.config.ts`): `local` (`RPC_URL`, default `127.0.0.1:8545`), `zg` (`evmrpc-testnet.0g.ai`), `zgmainnet` (`ZG_MAINNET_RPC_URL`, default `evmrpc.0g.ai`, chainId pinned to 16661), `sepolia`. Deployer key via `DEPLOYER_KEY` env (dotenv).
 
 ## W0G deployment model (raw, pre-EIP-155 txs)
 
